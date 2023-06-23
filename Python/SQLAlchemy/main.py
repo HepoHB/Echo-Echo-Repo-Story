@@ -35,4 +35,13 @@ class Address(Base):
         return f"Address(id={self.cd_id}, e-mail={self.nm_mail})"
 
 
-print(User.nm_name)
+engine = SQL.create_engine("sqlite://")
+
+Base.metadata.create_all(engine)
+
+inspector = SQL.inspect(engine)
+
+print(inspector)
+print(inspector.has_table("User"))
+print(inspector.get_table_names())
+print(inspector.default_schema_name)
