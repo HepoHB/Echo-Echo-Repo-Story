@@ -1,5 +1,5 @@
 import sqlalchemy as SQL
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
@@ -11,9 +11,8 @@ class User(Base):
     nm_name = SQL.Column(SQL.String)
     nm_fullname = SQL.Column(SQL.String)
 
-    adress = relationship(
-        "Adress", back_populates="User", cascade="all, delete-orphan"
-
+    nm_mail = relationship(
+        "Address", back_populates="user", cascade="all, delete-orphan"
     )
 
     def __repr__(self):
@@ -27,12 +26,11 @@ class Address(Base):
     cd_userId = SQL.Column(SQL.Integer, SQL.ForeignKey("User.cd_id"))
 
     user = relationship(
-        "User", back_populates="Address"
-        
+        "User", back_populates="nm_mail"
     )
 
     def __repr__(self):
-        return f"Address(id={self.cd_id}, e-mail={self.nm_mail})"
+        return f"Address(cd_id={self.cd_id}, nm_mail={self.nm_mail})"
 
 
 engine = SQL.create_engine("sqlite://")
@@ -45,3 +43,22 @@ print(inspector)
 print(inspector.has_table("User"))
 print(inspector.get_table_names())
 print(inspector.default_schema_name)
+
+with Session(engine) as session:
+    nero = User(
+        nm_name='Nero',
+        nm_fullname='Nero Haziel',
+        nm_mail=[Address(nm_mail='HazielNero@gmail.com')]
+
+    )
+
+    weslley = User(
+        nm_name='Weslley',
+        nm_fullname='Weslley Batista',
+        nm_mail=[Address(nm_mail='czuyidleempire@gmail.com'),
+                 Address(nm_mail='weslleybatista@yahoo.com')]
+
+    )
+
+    session.add_all([nero,weslley])
+    session.commit()
